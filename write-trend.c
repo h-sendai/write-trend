@@ -83,10 +83,15 @@ int main(int argc, char *argv[])
             got_alrm = 0;
             gettimeofday(&now, NULL);
             timersub(&now, &start, &elapsed);
+            struct timeval interval;
+            timersub(&now, &prev, &interval);
+            double interval_usec = interval.tv_sec + 0.000001*interval.tv_usec;
+            prev = now;
             long write_bytes_in_this_period = current_file_size - prev_file_size;
+            double write_rate = (double) write_bytes_in_this_period / interval_usec / 1024.0 / 1024.0;
             printf("%ld.%06ld %.3f MB/s %.3f MB\n", 
                 elapsed.tv_sec, elapsed.tv_usec,
-                (double) write_bytes_in_this_period/1024.0/1024.0,
+                write_rate,
                 (double) current_file_size/1024.0/1024.0);
             prev_file_size = current_file_size;
         }
