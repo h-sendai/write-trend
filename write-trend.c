@@ -93,6 +93,7 @@ int main(int argc, char *argv[])
                 elapsed.tv_sec, elapsed.tv_usec,
                 write_rate,
                 (double) current_file_size/1024.0/1024.0);
+            fflush(stdout);
             prev_file_size = current_file_size;
         }
         int n = fwrite(buf, 1 /* 1 byte */, bufsize, fp);
