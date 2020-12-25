@@ -6,7 +6,7 @@
 ./write-trend filename 1回fwriteするサイズ 最終ファイルサイズ
 ```
 
-サイズの指定にはm (mega), g (giga)が使えます。
+サイズの指定にはk (kilo), m (mega), g (giga)が使えます。
 
 ```
 ./write-trend test.file 32k 4g
