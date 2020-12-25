@@ -54,8 +54,8 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    char *filename = argv[0];
-    long bufsize = get_num(argv[1]);
+    char *filename  = argv[0];
+    long bufsize    = get_num(argv[1]);
     long total_size = get_num(argv[2]);
 
     struct timeval start, now, prev, elapsed;
