@@ -84,9 +84,10 @@ int main(int argc, char *argv[])
             gettimeofday(&now, NULL);
             timersub(&now, &start, &elapsed);
             int write_bytes_in_this_period = current_file_size - prev_file_size;
-            printf("%ld.%06ld %.3f MB/s\n", 
+            printf("%ld.%06ld %.3f MB/s %.3f MB\n", 
                 elapsed.tv_sec, elapsed.tv_usec,
-                (double) write_bytes_in_this_period/1024.0/1024.0);
+                (double) write_bytes_in_this_period/1024.0/1024.0,
+                (double) current_file_size/1024.0/1024.0);
             prev_file_size = current_file_size;
         }
         int n = fwrite(buf, 1 /* 1 byte */, bufsize, fp);
