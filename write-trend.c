@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
             got_alrm = 0;
             gettimeofday(&now, NULL);
             timersub(&now, &start, &elapsed);
-            int write_bytes_in_this_period = current_file_size - prev_file_size;
+            long write_bytes_in_this_period = current_file_size - prev_file_size;
             printf("%ld.%06ld %.3f MB/s %.3f MB\n", 
                 elapsed.tv_sec, elapsed.tv_usec,
                 (double) write_bytes_in_this_period/1024.0/1024.0,
