@@ -34,6 +34,32 @@ void sig_alrm(int signo)
     return;
 }
 
+/*
+ * anti-signal sleep
+ * if received signal during nanosleep(), then try nanosleep() again in remainint time
+ */
+int mysleep(int usec)
+{
+    struct timespec ts, rem;
+    ts.tv_sec = usec/1000000;
+    ts.tv_nsec = (usec - ts.tv_sec*1000000)*1000;
+
+    if (debug) {
+        fprintf(stderr, "%d usec: ts.tv_sec: %ld, ts.tv_nsec: %ld\n",
+            usec, ts.tv_sec, ts.tv_nsec);
+    }
+
+    rem = ts;
+again:
+    if (nanosleep(&rem, &rem) < 0) {
+        if (errno == EINTR) {
+            goto again;
+        }
+    }
+
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
     int c;
@@ -115,8 +141,7 @@ int main(int argc, char *argv[])
             exit(0);
         }
         if (usleep_usec > 0) {
-            /* XXX: interrupted by signal */
-            usleep(usleep_usec);
+            mysleep(usleep_usec);
         }
     }
     return 0;
