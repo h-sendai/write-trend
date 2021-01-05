@@ -1,6 +1,7 @@
 # write-trend
 
-fwrite(3)を使ってファイルに書き込むプログラム。
+write(2)を使ってファイルに書き込むプログラム。
+(当初はfwrite(3)を使っていましたが、やめました）。
 
 ## 使い方
 
@@ -54,3 +55,22 @@ fwrite(3)を使ってファイルに書き込むプログラム。
 30.003146 116.789 MB/s 3983.707 MB
 ```
 
+## オプション
+
+```
+write-trend [-d] [-i interval] [-s usec] filename buffer_size total_size
+suffix m for mega, g for giga
+Options:
+-d debug
+-i interval (default: 1 seconds): print interval (may decimal such as 0.1)
+-s usec (default: none): sleep usec micro seconds between each write
+```
+
+### -i interval
+
+途中経過の出力間隔を指定します。指定しなかった場合は1秒おきに表示がでます。
+0.1のように小数も指定できます。
+
+### -s usec
+
+write()終了後、usecマイクロ秒スリープして、次のwrite()を行います。

@@ -73,10 +73,14 @@ int main(int argc, char *argv[])
 
     prctl(PR_SET_TIMERSLACK, 1);
 
-    while ( (c = getopt(argc, argv, "di:s:")) != -1) {
+    while ( (c = getopt(argc, argv, "dhi:s:")) != -1) {
         switch (c) {
             case 'd':
                 debug = 1;
+                break;
+            case 'h':
+                usage();
+                exit(0);
                 break;
             case 'i':
                 tv_interval = str2timeval(optarg);
