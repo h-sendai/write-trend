@@ -1,6 +1,7 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <sys/prctl.h>
 
 #include <err.h>
 #include <errno.h>
@@ -36,10 +37,17 @@ void sig_alrm(int signo)
 int main(int argc, char *argv[])
 {
     int c;
-    while ( (c = getopt(argc, argv, "d")) != -1) {
+    int usleep_usec = 0;
+
+    prctl(PR_SET_TIMERSLACK, 1);
+
+    while ( (c = getopt(argc, argv, "ds:")) != -1) {
         switch (c) {
             case 'd':
                 debug = 1;
+                break;
+            case 's':
+                usleep_usec = strtol(optarg, NULL, 0);
                 break;
             default:
                 break;
@@ -105,6 +113,10 @@ int main(int argc, char *argv[])
         current_file_size += n;
         if (total_size < current_file_size) {
             exit(0);
+        }
+        if (usleep_usec > 0) {
+            /* XXX: interrupted by signal */
+            usleep(usleep_usec);
         }
     }
     return 0;
