@@ -29,7 +29,7 @@ int usage()
                  "-i interval (default: 1 seconds): print interval (may decimal such as 0.1)\n"
                  "-s usec (default: none): sleep usec micro seconds between each write\n"
                  "-C : drop page cache after all write() done\n"
-                 "-D : Use direct IO (O_DIRECt)\n";
+                 "-D : Use direct IO (O_DIRECT)\n";
 
     fprintf(stderr, "%s\n", msg);
 
