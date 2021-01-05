@@ -105,9 +105,10 @@ int main(int argc, char *argv[])
     long current_file_size = 0;
     long prev_file_size    = 0;
 
-    FILE *fp = fopen(filename, "w");
-    if (fp == NULL) {
-        err(1, "fopen");
+    int open_flags = O_CREAT|O_WRONLY;
+    int fd = open(filename, open_flags, 0644);
+    if (fd < 0) {
+        err(1, "open");
     }
 
     unsigned char *buf = malloc(bufsize);
@@ -139,11 +140,9 @@ int main(int argc, char *argv[])
             fflush(stdout);
             prev_file_size = current_file_size;
         }
-        int n = fwrite(buf, 1 /* 1 byte */, bufsize, fp);
-        if (n == 0) {
-            if (ferror(fp)) {
-                err(1, "fwrite");
-            }
+        int n = write(fd, buf, bufsize);
+        if (n < 0) {
+            err(1, "write");
         }
         current_file_size += n;
         if (total_size < current_file_size) {
