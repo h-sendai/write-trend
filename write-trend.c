@@ -1,4 +1,4 @@
-#define _GNU_SOURCE /* for aligned_alloc() */
+#define _GNU_SOURCE /* for O_DIRECT */
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
