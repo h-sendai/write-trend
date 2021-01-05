@@ -26,7 +26,8 @@ int usage()
                  "Options:\n"
                  "-d debug\n"
                  "-i interval (default: 1 seconds): print interval (may decimal such as 0.1)\n"
-                 "-s usec (default: none): sleep usec micro seconds between each write\n";
+                 "-s usec (default: none): sleep usec micro seconds between each write\n"
+                 "-C : drop page cache after all write() done\n";
 
     fprintf(stderr, "%s\n", msg);
 
@@ -65,15 +66,36 @@ again:
     return 0;
 }
 
+int drop_page_cache(char *filename)
+{
+    int fd = open(filename, O_RDONLY);
+    if (fd < 0) {
+        warn("open in drop_page_cache");
+        return -1;
+    }
+    if (fdatasync(fd) < 0) {
+        warn("fdatasync in drop_page_cache");
+    }
+
+    int n = posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED);
+    if (n != 0) {
+        warnx("posix_fadvise POSIX_FADV_DONTNEED fail");
+        return -1;
+    }
+
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
     int c;
-    int usleep_usec = 0;
+    int usleep_usec   = 0;
+    int do_drop_cache = 0;
     struct timeval tv_interval = { 1, 0 };
 
     prctl(PR_SET_TIMERSLACK, 1);
 
-    while ( (c = getopt(argc, argv, "dhi:s:")) != -1) {
+    while ( (c = getopt(argc, argv, "dhi:s:C")) != -1) {
         switch (c) {
             case 'd':
                 debug = 1;
@@ -87,6 +109,9 @@ int main(int argc, char *argv[])
                 break;
             case 's':
                 usleep_usec = strtol(optarg, NULL, 0);
+                break;
+            case 'C':
+                do_drop_cache = 1;
                 break;
             default:
                 break;
@@ -149,12 +174,20 @@ int main(int argc, char *argv[])
             err(1, "write");
         }
         current_file_size += n;
-        if (total_size < current_file_size) {
-            exit(0);
+        if (debug) {
+            fprintf(stderr, "write done: %ld bytes\n", current_file_size);
+        }
+        if (total_size <= current_file_size) {
+            break;
         }
         if (usleep_usec > 0) {
             mysleep(usleep_usec);
         }
     }
+
+    if (do_drop_cache) {
+        drop_page_cache(filename);
+    }
+
     return 0;
 }
