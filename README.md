@@ -58,7 +58,7 @@ write(2)を使ってファイルに書き込むプログラム。
 ## オプション
 
 ```
-write-trend [-d] [-i interval] [-s usec] filename buffer_size total_size
+write-trend [-d] [-i interval] [-s usec] [-C] filename buffer_size total_size
 suffix m for mega, g for giga
 Options:
 -d debug
