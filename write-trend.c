@@ -21,7 +21,7 @@ volatile sig_atomic_t got_alrm = 0;
 
 int usage()
 {
-    char msg[] = "Usage: write-trend [-d] [-i interval] [-s usec] filename buffer_size total_size\n"
+    char msg[] = "Usage: write-trend [-d] [-i interval] [-s usec] [-C] filename buffer_size total_size\n"
                  "suffix m for mega, g for giga\n"
                  "Options:\n"
                  "-d debug\n"
