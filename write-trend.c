@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
 
     struct timeval start, now, prev, elapsed;
     long current_file_size = 0;
-    long prev_file_size = 0;
+    long prev_file_size    = 0;
 
     FILE *fp = fopen(filename, "w");
     if (fp == NULL) {
