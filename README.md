@@ -66,7 +66,7 @@ Options:
 -s usec (default: none): sleep usec micro seconds between each write
 -C : drop page cache after all write() done
 -D : Use direct IO (O_DIRECT)
-
+-S : Use synchronized IO (O_SYNC)
 ```
 
 ### -i interval
@@ -86,3 +86,7 @@ write()終了後、usecマイクロ秒スリープして、次のwrite()を行�
 
 O_DIRECTを付けてopen()します（ダイレクトIO。OSのページキャッシュ機能をバイパスして
 write()するようになる）。
+
+### -S
+
+O_SYNCを付けてopen()します（synchronized IO。とてつもなく遅くなります）。
