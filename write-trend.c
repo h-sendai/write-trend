@@ -1,3 +1,4 @@
+#define _GNU_SOURCE /* for aligned_alloc() */
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -21,13 +22,14 @@ volatile sig_atomic_t got_alrm = 0;
 
 int usage()
 {
-    char msg[] = "Usage: write-trend [-d] [-i interval] [-s usec] [-C] filename buffer_size total_size\n"
+    char msg[] = "Usage: write-trend [-d] [-i interval] [-s usec] [-C] [-D] filename buffer_size total_size\n"
                  "suffix m for mega, g for giga\n"
                  "Options:\n"
                  "-d debug\n"
                  "-i interval (default: 1 seconds): print interval (may decimal such as 0.1)\n"
                  "-s usec (default: none): sleep usec micro seconds between each write\n"
-                 "-C : drop page cache after all write() done\n";
+                 "-C : drop page cache after all write() done\n"
+                 "-D : Use direct IO (O_DIRECt)\n";
 
     fprintf(stderr, "%s\n", msg);
 
@@ -91,11 +93,12 @@ int main(int argc, char *argv[])
     int c;
     int usleep_usec   = 0;
     int do_drop_cache = 0;
+    int use_direct_io = 0;
     struct timeval tv_interval = { 1, 0 };
 
     prctl(PR_SET_TIMERSLACK, 1);
 
-    while ( (c = getopt(argc, argv, "dhi:s:C")) != -1) {
+    while ( (c = getopt(argc, argv, "dhi:s:CD")) != -1) {
         switch (c) {
             case 'd':
                 debug = 1;
@@ -112,6 +115,9 @@ int main(int argc, char *argv[])
                 break;
             case 'C':
                 do_drop_cache = 1;
+                break;
+            case 'D':
+                use_direct_io = 1;
                 break;
             default:
                 break;
@@ -135,14 +141,27 @@ int main(int argc, char *argv[])
     long prev_file_size    = 0;
 
     int open_flags = O_CREAT|O_WRONLY;
+    if (use_direct_io) {
+        open_flags |= O_DIRECT;
+    }
+
     int fd = open(filename, open_flags, 0644);
     if (fd < 0) {
         err(1, "open");
     }
 
-    unsigned char *buf = malloc(bufsize);
-    if (buf == NULL) {
-        err(1, "malloc");
+    unsigned char *buf;
+    if (use_direct_io) {
+        buf = aligned_alloc(512, bufsize);
+        if (buf == NULL) {
+            errx(1, "aligned_alloc");
+        }
+    }
+    else {
+        buf = malloc(bufsize);
+        if (buf == NULL) {
+            err(1, "malloc");
+        }
     }
     memset(buf, 0, bufsize);
 
