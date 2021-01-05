@@ -64,6 +64,7 @@ Options:
 -d debug
 -i interval (default: 1 seconds): print interval (may decimal such as 0.1)
 -s usec (default: none): sleep usec micro seconds between each write
+-C : drop page cache after all write() done
 ```
 
 ### -i interval
@@ -74,3 +75,7 @@ Options:
 ### -s usec
 
 write()終了後、usecマイクロ秒スリープして、次のwrite()を行います。
+
+### -C
+
+全てのwrite()が終了後、filenameで指定したファイルのページキャッシュを削除します。
