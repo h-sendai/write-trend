@@ -58,13 +58,15 @@ write(2)を使ってファイルに書き込むプログラム。
 ## オプション
 
 ```
-write-trend [-d] [-i interval] [-s usec] [-C] filename buffer_size total_size
+write-trend [-d] [-i interval] [-s usec] [-C] [-D] filename buffer_size total_size
 suffix m for mega, g for giga
 Options:
 -d debug
 -i interval (default: 1 seconds): print interval (may decimal such as 0.1)
 -s usec (default: none): sleep usec micro seconds between each write
 -C : drop page cache after all write() done
+-D : Use direct IO (O_DIRECT)
+
 ```
 
 ### -i interval
@@ -79,3 +81,8 @@ write()終了後、usecマイクロ秒スリープして、次のwrite()を行�
 ### -C
 
 全てのwrite()が終了後、filenameで指定したファイルのページキャッシュを削除します。
+
+### -D
+
+O_DIRECTを付けてopen()します（ダイレクトIO。OSのページキャッシュ機能をバイパスして
+write()するようになる）。
