@@ -21,8 +21,13 @@ volatile sig_atomic_t got_alrm = 0;
 
 int usage()
 {
-    char msg[] = "Usage: write-trend filename buffer_size total_size\n"
-                 "suffix m for mega, g for giga\n";
+    char msg[] = "Usage: write-trend [-d] [-i interval] [-s usec] filename buffer_size total_size\n"
+                 "suffix m for mega, g for giga\n"
+                 "Options:\n"
+                 "-d debug\n"
+                 "-i interval (default: 1 seconds): print interval (may decimal such as 0.1)\n"
+                 "-s usec (default: none): sleep usec micro seconds between each write\n";
+
     fprintf(stderr, "%s\n", msg);
 
     return 0;
@@ -64,13 +69,17 @@ int main(int argc, char *argv[])
 {
     int c;
     int usleep_usec = 0;
+    struct timeval tv_interval = { 1, 0 };
 
     prctl(PR_SET_TIMERSLACK, 1);
 
-    while ( (c = getopt(argc, argv, "ds:")) != -1) {
+    while ( (c = getopt(argc, argv, "di:s:")) != -1) {
         switch (c) {
             case 'd':
                 debug = 1;
+                break;
+            case 'i':
+                tv_interval = str2timeval(optarg);
                 break;
             case 's':
                 usleep_usec = strtol(optarg, NULL, 0);
@@ -111,7 +120,7 @@ int main(int argc, char *argv[])
     gettimeofday(&prev, NULL);
     
     my_signal(SIGALRM, sig_alrm);
-    set_timer(1, 0, 1, 0);
+    set_timer(tv_interval.tv_sec, tv_interval.tv_usec, tv_interval.tv_sec, tv_interval.tv_usec);
     for ( ; ; ) {
         if (got_alrm) {
             got_alrm = 0;
