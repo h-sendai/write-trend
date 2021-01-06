@@ -1,9 +1,12 @@
-# write-trend
+# write-trend / read-trend
 
 write(2)を使ってファイルに書き込むプログラム。
 (当初はfwrite(3)を使っていましたが、やめました）。
 
-## 使い方
+writeもあるならreadも、ということでread-trendというプログラムも
+作りました。
+
+## write-trend 使い方
 
 ```
 ./write-trend filename 1回fwriteするサイズ 最終ファイルサイズ
@@ -90,3 +93,20 @@ write()するようになる）。
 ### -S
 
 O_SYNCを付けてopen()します（synchronized IO。とてつもなく遅くなります）。
+
+## read-trend 使い方
+
+read-trend -h でヘルプがでます。
+
+```
+Usage: read-trend [-i interval] [-b bufsize] filename
+-i interval (allow decimal) sec (default 1 second)
+-b bufsize  buffer size (default 64kB)
+-D          use O_DIRECT
+```
+
+intervalは小数でも指定できます。例:
+
+```
+read-trend -i 0.1 test.file
+```
