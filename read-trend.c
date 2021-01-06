@@ -31,7 +31,8 @@ int usage()
     char msg[] = "Usage: read-trend [-i interval] [-b bufsize] filename\n"
                  "-i interval (allow decimal) sec (default 1 second)\n"
                  "-b bufsize  buffer size (default 64kB)\n"
-                 "-D          use O_DIRECT\n";
+                 "-D          use O_DIRECT\n"
+                 "-t          print timestamp from epoch\n";
     fprintf(stderr, "%s", msg);
 
     return 0;
@@ -62,9 +63,10 @@ int main(int argc, char *argv[])
     int c;
     struct timeval tv_interval = { 1, 0 };
     int bufsize = 64*1024;
-    int use_direct_io = 0;
+    int use_direct_io   = 0;
+    int print_timestamp = 0;
 
-    while ( (c = getopt(argc, argv, "b:hi:dD")) != -1) {
+    while ( (c = getopt(argc, argv, "b:hi:dDt")) != -1) {
         switch (c) {
             case 'b':
                 bufsize = get_num(optarg);
@@ -77,6 +79,9 @@ int main(int argc, char *argv[])
                 exit(0);
             case 'i':
                 tv_interval = str2timeval(optarg);
+                break;
+            case 't':
+                print_timestamp = 1;
                 break;
             case 'D':
                 use_direct_io = 1;
@@ -139,8 +144,12 @@ int main(int argc, char *argv[])
             timersub(&now, &prev, &interval);
             double interval_usec = interval.tv_sec + 0.000001*interval.tv_usec;
             double read_rate = interval_read_size / interval_usec / 1024.0 / 1024.0;
-            printf("%ld.%06ld %.3f MB/s %.3f MB\n",
+            printf("%ld.%06ld %.3f MB/s %.3f MB",
                 elapsed.tv_sec, elapsed.tv_usec, read_rate, total_read_size / 1024.0 / 1024.0);
+            if (print_timestamp) {
+                printf(" %ld.%06ld", now.tv_sec, now.tv_usec);
+            }
+            printf("\n");
             fflush(stdout);
             prev = now;
         }
