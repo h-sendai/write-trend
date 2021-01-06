@@ -70,6 +70,7 @@ Options:
 -C : drop page cache after all write() done
 -D : Use direct IO (O_DIRECT)
 -S : Use synchronized IO (O_SYNC)
+-t : Print timestamp from Epoch
 ```
 
 ### -i interval
@@ -94,6 +95,10 @@ write()するようになる）。
 
 O_SYNCを付けてopen()します（synchronized IO。とてつもなく遅くなります）。
 
+### -t
+
+gettimeofday()で取得した時刻を表示します。
+
 ## read-trend 使い方
 
 read-trend -h でヘルプがでます。
@@ -103,6 +108,7 @@ Usage: read-trend [-i interval] [-b bufsize] filename
 -i interval (allow decimal) sec (default 1 second)
 -b bufsize  buffer size (default 64kB)
 -D          use O_DIRECT
+-t          print timestamp from epoch
 ```
 
 intervalは小数でも指定できます。例:
