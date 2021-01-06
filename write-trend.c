@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
     memset(buf, 0, bufsize);
 
     gettimeofday(&start, NULL);
-    gettimeofday(&prev, NULL);
+    prev = start;
     
     my_signal(SIGALRM, sig_alrm);
     set_timer(tv_interval.tv_sec, tv_interval.tv_usec, tv_interval.tv_sec, tv_interval.tv_usec);
