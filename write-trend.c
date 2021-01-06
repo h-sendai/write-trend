@@ -30,7 +30,8 @@ int usage()
                  "-s usec (default: none): sleep usec micro seconds between each write\n"
                  "-C : drop page cache after all write() done\n"
                  "-D : Use direct IO (O_DIRECT)\n"
-                 "-S : Use synchronized IO (O_SYNC)\n";
+                 "-S : Use synchronized IO (O_SYNC)\n"
+                 "-t : Print timestamp from Epoch\n";
 
     fprintf(stderr, "%s\n", msg);
 
@@ -92,15 +93,16 @@ int drop_page_cache(char *filename)
 int main(int argc, char *argv[])
 {
     int c;
-    int usleep_usec   = 0;
-    int do_drop_cache = 0;
-    int use_direct_io = 0;
-    int use_sync_io   = 0;
+    int usleep_usec     = 0;
+    int do_drop_cache   = 0;
+    int use_direct_io   = 0;
+    int use_sync_io     = 0;
+    int print_timestamp = 0;
     struct timeval tv_interval = { 1, 0 };
 
     prctl(PR_SET_TIMERSLACK, 1);
 
-    while ( (c = getopt(argc, argv, "dhi:s:CDS")) != -1) {
+    while ( (c = getopt(argc, argv, "dhi:s:tCDS")) != -1) {
         switch (c) {
             case 'd':
                 debug = 1;
@@ -114,6 +116,9 @@ int main(int argc, char *argv[])
                 break;
             case 's':
                 usleep_usec = strtol(optarg, NULL, 0);
+                break;
+            case 't':
+                print_timestamp = 1;
                 break;
             case 'C':
                 do_drop_cache = 1;
@@ -189,10 +194,14 @@ int main(int argc, char *argv[])
             prev = now;
             long write_bytes_in_this_period = current_file_size - prev_file_size;
             double write_rate = (double) write_bytes_in_this_period / interval_usec / 1024.0 / 1024.0;
-            printf("%ld.%06ld %.3f MB/s %.3f MB\n", 
+            printf("%ld.%06ld %.3f MB/s %.3f MB", 
                 elapsed.tv_sec, elapsed.tv_usec,
                 write_rate,
                 (double) current_file_size/1024.0/1024.0);
+            if (print_timestamp) {
+                printf(" %ld.%06ld", now.tv_sec, now.tv_usec);
+            }
+            printf("\n");
             fflush(stdout);
             prev_file_size = current_file_size;
         }
