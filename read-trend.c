@@ -28,7 +28,7 @@ void sig_alrm(int signo)
 
 int usage()
 {
-    char msg[] = "Usage: read-trend [-i interval] [-b bufsize] filename\n"
+    char msg[] = "Usage: read-trend [-i interval] [-b bufsize] [-C] [-D] [-t] filename\n"
                  "-i interval (allow decimal) sec (default 1 second)\n"
                  "-b bufsize  buffer size (default 64kB)\n"
                  "-C          drop page cache after all read() done\n"
