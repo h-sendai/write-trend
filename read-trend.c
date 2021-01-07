@@ -31,6 +31,7 @@ int usage()
     char msg[] = "Usage: read-trend [-i interval] [-b bufsize] filename\n"
                  "-i interval (allow decimal) sec (default 1 second)\n"
                  "-b bufsize  buffer size (default 64kB)\n"
+                 "-C          drop page cache after all read() done\n"
                  "-D          use O_DIRECT\n"
                  "-t          print timestamp from epoch\n";
     fprintf(stderr, "%s", msg);
@@ -38,7 +39,7 @@ int usage()
     return 0;
 }
 
-int drop_page_cache(char *filename)
+int do_drop_page_cache(char *filename)
 {
     int fd = open(filename, O_RDONLY);
     if (fd < 0) {
@@ -65,8 +66,9 @@ int main(int argc, char *argv[])
     int bufsize = 64*1024;
     int use_direct_io   = 0;
     int print_timestamp = 0;
+    int drop_page_cache = 0;
 
-    while ( (c = getopt(argc, argv, "b:hi:dDt")) != -1) {
+    while ( (c = getopt(argc, argv, "b:hi:dCDt")) != -1) {
         switch (c) {
             case 'b':
                 bufsize = get_num(optarg);
@@ -82,6 +84,9 @@ int main(int argc, char *argv[])
                 break;
             case 't':
                 print_timestamp = 1;
+                break;
+            case 'C':
+                drop_page_cache = 1;
                 break;
             case 'D':
                 use_direct_io = 1;
@@ -166,6 +171,8 @@ int main(int argc, char *argv[])
 
     close(fd);
 
-    drop_page_cache(filename);
+    if (drop_page_cache) {
+        do_drop_page_cache(filename);
+    }
     return 0;
 }
