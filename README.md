@@ -104,9 +104,10 @@ gettimeofday()で取得した時刻を表示します。
 read-trend -h でヘルプがでます。
 
 ```
-Usage: read-trend [-i interval] [-b bufsize] filename
+Usage: read-trend [-i interval] [-b bufsize] [-C] [-D] [-t] filename
 -i interval (allow decimal) sec (default 1 second)
 -b bufsize  buffer size (default 64kB)
+-C          drop page cache after all read() done
 -D          use O_DIRECT
 -t          print timestamp from epoch
 ```
@@ -117,8 +118,8 @@ intervalは小数でも指定できます。例:
 read-trend -i 0.1 test.file
 ```
 
-普通にファイルをリードするとページキャッシュにキャッシュされますが、
-read-trendでは読み取り終了後に自動でそのファイルのキャッシュを削除します
+普通にファイルをリードするとページキャッシュにキャッシュされます。
+-Cオプションを付けると読み取り終了後にそのファイルのキャッシュを削除します
 （他のファイルのキャッシュは削除しません）。キャッシュは以下の方法で
 削除しています。
 
@@ -128,4 +129,3 @@ read-trendでは読み取り終了後に自動でそのファイルのキャッ�
 
 最初からキャッシュされないようにするにはO_DIRECTでopen()する方法があります
 （これ以外の方法を知らない）。
-
