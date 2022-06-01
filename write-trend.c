@@ -22,7 +22,7 @@ volatile sig_atomic_t got_alrm = 0;
 
 int usage()
 {
-    char msg[] = "Usage: write-trend [-d] [-i interval] [-s usec] [-C] [-D] [-S] filename buffer_size total_size\n"
+    char msg[] = "Usage: write-trend [-d] [-i interval] [-s usec] [-C] [-D] [-S] [-t] [-a alignment] filename buffer_size total_size\n"
                  "suffix m for mega, g for giga\n"
                  "Options:\n"
                  "-d debug\n"
@@ -31,7 +31,8 @@ int usage()
                  "-C : drop page cache after all write() done\n"
                  "-D : Use direct IO (O_DIRECT)\n"
                  "-S : Use synchronized IO (O_SYNC)\n"
-                 "-t : Print timestamp from Epoch\n";
+                 "-t : Print timestamp from Epoch\n"
+                 "-a alignemt (default: 4kB)\n";
 
     fprintf(stderr, "%s\n", msg);
 
@@ -99,13 +100,17 @@ int main(int argc, char *argv[])
     int use_sync_io     = 0;
     int print_timestamp = 0;
     struct timeval tv_interval = { 1, 0 };
+    int alignment       = getpagesize(); /* 4096 in Linux x86_64 */
 
     prctl(PR_SET_TIMERSLACK, 1);
 
-    while ( (c = getopt(argc, argv, "dhi:s:tCDS")) != -1) {
+    while ( (c = getopt(argc, argv, "a:dhi:s:tCDS")) != -1) {
         switch (c) {
+            case 'a':
+                alignment = get_num(optarg);
+                break;
             case 'd':
-                debug = 1;
+                debug += 1;
                 break;
             case 'h':
                 usage();
@@ -150,7 +155,7 @@ int main(int argc, char *argv[])
     long current_file_size = 0;
     long prev_file_size    = 0;
 
-    int open_flags = O_CREAT|O_WRONLY;
+    int open_flags = O_CREAT|O_WRONLY|O_TRUNC;
     if (use_direct_io) {
         open_flags |= O_DIRECT;
     }
@@ -165,7 +170,11 @@ int main(int argc, char *argv[])
 
     unsigned char *buf;
     if (use_direct_io) {
-        buf = aligned_alloc(512, bufsize);
+        if (debug) {
+            fprintf(stderr, "alignment for aligned_alloc: %d\n", alignment);
+        }
+            
+        buf = aligned_alloc(alignment, bufsize);
         if (buf == NULL) {
             errx(1, "aligned_alloc");
         }
@@ -210,7 +219,7 @@ int main(int argc, char *argv[])
             err(1, "write");
         }
         current_file_size += n;
-        if (debug) {
+        if (debug >= 2) {
             fprintf(stderr, "write done: %ld bytes\n", current_file_size);
         }
         if (total_size <= current_file_size) {
