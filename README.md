@@ -1,3 +1,7 @@
+# Move to benchmarks
+
+このリポジトリはbenchmarksリポジトリに移動しました。
+
 # write-trend / read-trend
 
 write(2)を使ってファイルに書き込むプログラム。
